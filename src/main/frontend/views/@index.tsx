@@ -1,33 +1,47 @@
-import { Button, Notification, TextField } from "@vaadin/react-components";
-import { HelloEndpoint } from "Frontend/generated/endpoints.js";
-import { useState } from "react";
-import type { ViewConfig } from "@vaadin/hilla-file-router/types.js";
-
-export const config: ViewConfig = {
-    menu: {
-        title: "Main page"
-    }
-};
+import {useForm, useFormPart} from "@vaadin/hilla-react-form";
+import PersonModel from "Frontend/generated/org/vaadin/example/model/PersonModel";
+import {StringModel} from "@vaadin/hilla-lit-form";
+import {useState} from "react";
 
 export default function MainView() {
-  const [name, setName] = useState("");
+  const {model, field, value} = useForm(PersonModel);
+  const [showAddress, setShowAddress] = useState(false);
 
   return (
     <>
-      <TextField
-        label="Your name"
-        onValueChanged={(e) => {
-          setName(e.detail.value);
-        }}
-      />
-      <Button
-        onClick={async () => {
-          const serverResponse = await HelloEndpoint.sayHello(name);
-          Notification.show(serverResponse);
-        }}
-      >
-        Say hello
-      </Button>
+      {/* Question: why does it write "undefined" as the value into the <input />  */}
+      <MyTextComponent label="Your Name" stringModel={model.name} />
+
+      <button onClick={() => setShowAddress((v) => !v)}>Show Parents Inputs</button>
+
+      {showAddress && (
+        <MyTextComponent label="Streetname" stringModel={model.location.streetName} />
+      )}
+
+      <pre>{JSON.stringify(value, null, 2)}</pre>
+    </>
+  );
+}
+
+function MyTextComponent({stringModel, label}: {
+  stringModel: StringModel;
+  label: string;
+}) {
+  const {model, field, required, errors, invalid} = useFormPart(stringModel);
+
+  return (
+    <>
+      <label htmlFor="fullName">
+        {label}
+        {required ? '*' : ''}
+      </label>
+      <input id="fullName" {...field(model)}></input>
+      <br/>
+      <span className="label" style={{visibility: invalid ? 'visible' : 'hidden'}}>
+          <strong>
+           {errors[0]?.message}
+          </strong>
+        </span>
     </>
   );
 }

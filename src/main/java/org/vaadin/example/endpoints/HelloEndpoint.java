@@ -2,6 +2,8 @@ package org.vaadin.example.endpoints;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
+import org.vaadin.example.model.Location;
+import org.vaadin.example.model.Person;
 
 @BrowserCallable
 @AnonymousAllowed
@@ -31,5 +33,10 @@ public class HelloEndpoint {
         } else {
             return "Hello " + name;
         }
+    }
+
+    // just exposing the PersonModel to the frontend here
+    public Person getPerson() {
+        return new Person("John", new Location("Main Street"));
     }
 }
